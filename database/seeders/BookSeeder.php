@@ -17,7 +17,7 @@ class BookSeeder extends Seeder
         $categories = Category::all();
         $publishers = Publisher::all();
 
-        collect(range(1, 50))->each(fn($i) => Book::create([
+        collect(range(1, 1000))->each(fn($i) => Book::create([
             'isbn' => $faker->isbn13,
             'title' => $faker->sentence,
             'slug' => $faker->slug,
