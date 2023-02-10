@@ -23,6 +23,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Livewire\TemporaryUploadedFile;
 
 class BookResource extends Resource
 {
@@ -57,7 +58,11 @@ class BookResource extends Resource
                         Section::make('Images')
                             ->schema([
                                 FileUpload::make('image')
-                                    ->directory('products')
+                                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file,callable $get): string {
+                                        return (string) str($file->getClientOriginalName())->prepend($get('isbn').'-');
+                                    })
+                                    ->rules(['nullable', 'mimes:jpg,jpeg,png', 'max:1024'])
+                                    ->directory('books')
                                     ->visibility('public')
                                     ->image(),
                             ])
