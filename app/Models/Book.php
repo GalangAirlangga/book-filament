@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,6 +55,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Book extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'isbn',
         'title',
@@ -64,7 +66,6 @@ class Book extends Model
         'buying_price',
         'stock',
         'description',
-        'image',
         'book_page',
         'weight',
         'type_cover',
