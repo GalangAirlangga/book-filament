@@ -44,6 +44,8 @@ class BookResource extends Resource
                         Card::make()->schema([
                             Grid::make()->schema([
                                 TextInput::make('title')
+                                    ->minLength(3)
+                                    ->maxLength(255)
                                     ->required()
                                     ->reactive()
                                     ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state))),
@@ -58,6 +60,7 @@ class BookResource extends Resource
                         Section::make('Images')
                             ->schema([
                                 FileUpload::make('image')
+                                    ->required()
                                     ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file,callable $get): string {
                                         return (string) str($file->getClientOriginalName())->prepend($get('isbn').'-');
                                     })
@@ -86,6 +89,8 @@ class BookResource extends Resource
                             ->schema([
                                 TextInput::make('isbn')
                                     ->label('ISBN')
+                                    ->numeric()
+                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->required(),
 
                                 TextInput::make('stock')
@@ -93,19 +98,22 @@ class BookResource extends Resource
                                     ->required()
                                     ->default(0)
                                     ->minValue(0)
-                                    ->integer(),
+                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
+                                    ->numeric(),
 
 
                                 TextInput::make('book_page')
                                     ->label('Total Page')
                                     ->default(0)
                                     ->minValue(0)
-                                    ->integer(),
+                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
+                                    ->numeric(),
 
                                 TextInput::make('weight')
                                     ->label('Weight in gram')
                                     ->default(0)
                                     ->minValue(0)
+                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->numeric(),
                                 Radio::make('type_cover')
                                     ->options([

@@ -66,6 +66,7 @@ class Book extends Model
         'buying_price',
         'stock',
         'description',
+        'image',
         'book_page',
         'weight',
         'type_cover',
