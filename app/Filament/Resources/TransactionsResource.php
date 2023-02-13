@@ -5,27 +5,19 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TransactionsResource\Pages;
 use App\Filament\Resources\TransactionsResource\RelationManagers\TransactionItemsRelationManager;
 use App\Models\Book;
-use App\Models\Category;
 use App\Models\Transactions;
 use Closure;
 use DB;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Wizard\Step;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Str;
 
 class TransactionsResource extends Resource
 {
@@ -59,11 +51,17 @@ class TransactionsResource extends Resource
                     ->disabled()
                     ->placeholder(function (Closure $get,Closure $set) {
                         $fields = $get('transactionItems');
-                        \Log::info(json_encode($fields));
                         $sum = 0;
                         foreach($fields as $field){
-
-                            $sum += (integer)$field['unit_price'] * (integer)$field['quantity'];
+                            $unit_price = 0;
+                            if(isset($field['unit_price'])){
+                                $unit_price = (integer)$field['unit_price'];
+                            }
+                            $quantity = 0;
+                            if(isset($field['quantity'])){
+                                $quantity = (integer)$field['quantity'];
+                            }
+                            $sum += $unit_price * $quantity;
 
                         }
                         $set('total_price', $sum);
@@ -88,6 +86,7 @@ class TransactionsResource extends Resource
                             ->label('Book')
                             ->reactive()
                             ->searchable()
+                            ->required()
                             ->getSearchResultsUsing(fn (string $search) => Book::where('is_visible','=',1)
                                 ->where(function ($query) use ($search) {
                                 $query->where('title', 'like', "%{$search}%")
@@ -101,11 +100,13 @@ class TransactionsResource extends Resource
                             ->rules([
                                 function (Closure $get) {
                                     return function (string $attribute, $value, Closure $fail) use ($get) {
-
-                                        $book = Book::find($get('book_id'));
-                                        if ($book->stock < $value) {
-                                            $fail("The quantity supplied exceeds the stock availability.");
+                                        if($get('book_id')){
+                                            $book = Book::find($get('book_id'));
+                                            if ($book->stock < $value) {
+                                                $fail("The quantity supplied exceeds the stock availability.");
+                                            }
                                         }
+
                                     };
                                 },
                             ])
@@ -116,6 +117,7 @@ class TransactionsResource extends Resource
                             ->numeric()
                             ->disabled()
                             ->reactive()
+                            ->mask(fn (TextInput\Mask $mask) => $mask->money(prefix: 'Rp.', thousandsSeparator: '.', decimalPlaces: 0))
                             ->default(0),
                     ])
                     ->createItemButtonLabel('Add Items')->columnSpanFull()

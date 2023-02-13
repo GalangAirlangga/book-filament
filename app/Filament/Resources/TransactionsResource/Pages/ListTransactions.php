@@ -6,9 +6,7 @@ use App\Filament\Resources\TransactionsResource;
 use App\Filament\Resources\TransactionsResource\Widgets\TransactionOverview;
 use Filament\Pages\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 
 class ListTransactions extends ListRecords
@@ -25,10 +23,8 @@ class ListTransactions extends ListRecords
     protected function getTableActions(): array
     {
         return [
-            ActionGroup::make([
-                ViewAction::make(),
-                DeleteAction::make(),
-            ]),
+            ViewAction::make(),
+            DeleteAction::make(),
         ];
     }
 
