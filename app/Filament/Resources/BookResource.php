@@ -48,11 +48,11 @@ class BookResource extends Resource
                                     ->maxLength(255)
                                     ->required()
                                     ->reactive()
-                                    ->afterStateUpdated(fn($state, callable $set) => $set('slug', Str::slug($state))),
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
                                     ->disabled()
-                                    ->unique(Book::class, 'slug', fn($record) => $record),
+                                    ->unique(Book::class, 'slug', fn ($record) => $record),
 
                                 MarkdownEditor::make('description')->columnSpan('full'),
                             ])
@@ -61,10 +61,10 @@ class BookResource extends Resource
                             ->schema([
                                 FileUpload::make('image')
                                     ->required()
-                                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file,callable $get): string {
-                                        return (string) str($file->getClientOriginalName())->prepend($get('isbn').'-');
+                                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, callable $get): string {
+                                        return (string) str($file->getClientOriginalName())->prepend($get('isbn') . '-');
                                     })
-                                    ->rules(['nullable', 'mimes:jpg,jpeg,png', 'max:1024'])
+                                    ->rules(['mimes:jpg,jpeg,png', 'max:1024'])
                                     ->directory('books')
                                     ->visibility('public')
                                     ->image(),
@@ -74,14 +74,13 @@ class BookResource extends Resource
                         Section::make('Price')
                             ->schema([
                                 TextInput::make('selling_price')
+                                    ->mask(fn (TextInput\Mask $mask) => $mask->money(prefix: 'Rp.', thousandsSeparator: '.', decimalPlaces: 0))
                                     ->numeric()
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->required(),
 
                                 TextInput::make('buying_price')
-                                    ->label('Buying Price')
                                     ->numeric()
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
+                                    ->mask(fn (TextInput\Mask $mask) => $mask->money(prefix: 'Rp.', thousandsSeparator: '.', decimalPlaces: 0))
                                     ->required(),
                             ])
                             ->columns(),
@@ -89,8 +88,8 @@ class BookResource extends Resource
                             ->schema([
                                 TextInput::make('isbn')
                                     ->label('ISBN')
+                                    ->maxLength(13)
                                     ->numeric()
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->required(),
 
                                 TextInput::make('stock')
@@ -98,7 +97,6 @@ class BookResource extends Resource
                                     ->required()
                                     ->default(0)
                                     ->minValue(0)
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->numeric(),
 
 
@@ -106,16 +104,15 @@ class BookResource extends Resource
                                     ->label('Total Page')
                                     ->default(0)
                                     ->minValue(0)
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->numeric(),
 
                                 TextInput::make('weight')
                                     ->label('Weight in gram')
                                     ->default(0)
                                     ->minValue(0)
-                                    ->rules(['regex:/^\d{1,6}(\.\d{0,2})?$/'])
                                     ->numeric(),
                                 Radio::make('type_cover')
+                                    ->in(['soft_cover', 'hard_cover'])
                                     ->options([
                                         'soft_cover' => 'Soft Cover',
                                         'hard_cover' => 'Hard Cover'
@@ -205,8 +202,8 @@ class BookResource extends Resource
 
                 TextColumn::make('type_cover')
                     ->enum([
-                    'soft_cover' => 'Soft Cover',
-                    'hard_cover' => 'Hard Cover'
+                        'soft_cover' => 'Soft Cover',
+                        'hard_cover' => 'Hard Cover'
                     ])
                     ->toggleable(isToggledHiddenByDefault: true),
 
@@ -219,7 +216,7 @@ class BookResource extends Resource
             ]);
     }
 
-    public static function getPages():array
+    public static function getPages(): array
     {
         return [
             'index' => Pages\ListBooks::route('/'),
@@ -238,7 +235,7 @@ class BookResource extends Resource
         return ['title', 'slug', 'category.name', 'publisher.name'];
     }
 
-    public static function getGlobalSearchResultDetails(Model $record):array
+    public static function getGlobalSearchResultDetails(Model $record): array
     {
         $details = [];
 
@@ -257,5 +254,4 @@ class BookResource extends Resource
     {
         return self::$model::where('stock', '<', 5)->count();
     }
-
 }

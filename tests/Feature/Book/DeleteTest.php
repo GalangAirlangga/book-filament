@@ -1,7 +1,7 @@
 <?php
 
-use App\Filament\Resources\CategoryResource\Pages\EditCategory;
-use App\Models\Category;
+use App\Filament\Resources\BookResource\Pages\EditBook;
+use App\Models\Book;
 use App\Models\User;
 use Filament\Pages\Actions\DeleteAction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,12 +16,12 @@ beforeEach(function () {
 });
 
 it('can delete', function () {
-    $category = Category::factory()->create();
+    $book = Book::factory()->create();
 
-    livewire(EditCategory::class, [
-        'record' => $category->getKey(),
+    livewire(EditBook::class, [
+        'record' => $book->getKey(),
     ])
         ->callPageAction(DeleteAction::class);
 
-    $this->assertModelMissing($category);
+    $this->assertModelMissing($book);
 });
